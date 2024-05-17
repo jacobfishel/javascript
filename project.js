@@ -21,14 +21,14 @@ const SYMBOL_COUNT = {
     D : 8,
 };
 
-const SYMBOL_VALUE = {
+const SYMBOL_VALUES = {
     A : 5,
     B : 4,
     C : 3,
     D : 2,
 };
 
-
+//returns players deposit amount
 const deposit = () => {
     while(true) {
         const depositAmount = prompt("Enter a deposit amount: ");
@@ -43,6 +43,7 @@ console.log("Invalid deposit amount, try again.");
     }
 };
 
+//returns number of lines
 const getNumberOfLines = () => {
     while(true) {
         const lines = prompt("Enter the amount of lines to bet on (1-3): ");
@@ -58,6 +59,8 @@ console.log("Invalid number of lines, try again.");
 
 }
 
+
+//returns bet amount per line
 const getBet = (balance, lines) => {
     while(true) {
         const bet = prompt("Enter the bet per line: ");
@@ -72,6 +75,7 @@ console.log("Invalid bet amount, try again.");
     }
 }
 
+//
 const spin = () => {
   const symbols = [];
   for (const [symbol, count] of Object.entries(SYMBOL_COUNT)) {
@@ -80,6 +84,7 @@ const spin = () => {
     }
   }
 
+  //returns reels array in a random order
   const reels = [];
   for (let i = 0; i < COLS; i++) {
     reels.push([]);
@@ -111,18 +116,58 @@ const printRows = (rows) => {
     for (const [i, symbol] of row.entries()){
         rowString += symbol;
         if(i != row.length - 1) {
-            rowString += "|";
+            rowString += " | ";
         }
     }
     console.log(rowString);
 }
-}
+};
+
+const getWinnings = (rows, bet, lines) => {
+    let winnings = 0;
+
+    for (let row = 0; row < lines; row++) {
+        const symbols = rows[row];
+        let allSame = true;
+
+        for (const symbol of symbols) {
+            if (symbol != symbols[0]) {
+                allSame = false;
+                break;
+            }
+        }
+            if (allSame) {
+                winnings += bet * SYMBOL_VALUES[symbols[0]];
+            }
+        }
+    
+    return winnings;
+};
 
 
-
+const game = () => {
 let balance = deposit();
+
+while (true) {
+console.log("You have a balance of $" + balance);
 const numberOfLines = getNumberOfLines();
 const bet = getBet(balance, numberOfLines);
+balance -= bet * numberOfLines;
 const reels = spin();
 const rows = transpose(reels);
 printRows(rows);
+const winnings = getWinnings(rows, bet, numberOfLines);
+balance += winnings;
+console.log("You won $" + winnings.toString());
+
+if (balance <= 0) {
+    console.log("You ran out of money!");
+    break;
+}
+
+const playAgain = prompt("Would you like to keep plaing (y/n)? ")
+
+if (playAgain != "y") break;
+}
+};
+game();
